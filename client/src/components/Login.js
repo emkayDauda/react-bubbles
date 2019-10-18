@@ -2,6 +2,7 @@ import React from "react";
 import { Formik, Form, Field } from "formik";
 import { Button } from "react-bulma-components";
 import axiosWithAuth from "../utils/axiosWithAuth";
+import styled from "styled-components";
 
 const Login = ({ history }) => {
   // make a post request to retrieve a token from the api
@@ -23,14 +24,28 @@ const Login = ({ history }) => {
   return <Formik
     initialValues = {initialForm}
     onSubmit = {attemptLogin}
-    render = {props => <Form>
+    render = {props => <StyledForm>
         <h3>Login</h3>
         <Field name='username' type='text' placeholder='Username' />
         <Field name='password' type='password' placeholder='Password' />
         <Button type='submit' color='info' >Login</Button>
-      </Form>
+      </StyledForm>
     }
   />;
 };
+
+const StyledForm = styled(Form)`
+  input {
+    width: 80%;
+    margin: .3rem auto;
+  }
+
+  button {
+    width: 8rem;
+    margin: .3rem auto;
+
+  }
+`
+
 
 export default Login;
