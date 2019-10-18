@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axiosWithAuth from "../utils/axiosWithAuth";
 import { Formik, Form, Field } from "formik";
 import { Button } from "react-bulma-components";
+import styled from "styled-components";
 
 const initialColor = {
   color: "",
@@ -61,7 +62,7 @@ const ColorList = ({ colors, updateColors }) => {
     })
     .then(({data}) => {
       console.log(data);
-      
+      actions.resetForm()
       updateColors(data)
     })
     .catch(err => console.log(err))
@@ -122,14 +123,27 @@ const ColorList = ({ colors, updateColors }) => {
       
       initialValues = {formColor}
       onSubmit ={addColor}
-      render = {props => <Form>
+      render = {props => <StyledForm>
         <Field name='color' type='text' placeholder='Color' />
         <Field name='hex' type='text' placeholder='Hex' />
         <Button type='submit' color='primary' >Add Color</Button>
-      </Form>}
+      </StyledForm>}
       />
     </div>
   );
 };
+
+const StyledForm = styled(Form)`
+  input {
+    width: 80%;
+    margin: .3rem auto;
+  }
+
+  button {
+    width: 8rem;
+    margin: .3rem auto;
+
+  }
+`
 
 export default ColorList;
