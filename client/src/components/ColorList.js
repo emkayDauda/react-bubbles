@@ -1,9 +1,16 @@
 import React, { useState } from "react";
 import axiosWithAuth from "../utils/axiosWithAuth";
+import { Formik, Form, Field } from "formik";
+import { Button } from "react-bulma-components";
 
 const initialColor = {
   color: "",
   code: { hex: "" }
+};
+
+const formColor = {
+  color: "",
+   hex: "" 
 };
 
 const ColorList = ({ colors, updateColors }) => {
@@ -46,6 +53,20 @@ const ColorList = ({ colors, updateColors }) => {
     .catch(err => alert(err))
   };
 
+  const addColor = (formValues, actions) => {
+    axiosWithAuth().post('/colors', {
+      id: Date.now,
+      color: formValues.color,
+      code: {hex: formValues.hex}
+    })
+    .then(({data}) => {
+      console.log(data);
+      
+      updateColors(data)
+    })
+    .catch(err => console.log(err))
+  }
+
   return (
     <div className="colors-wrap">
       <p>colors</p>
@@ -85,7 +106,7 @@ const ColorList = ({ colors, updateColors }) => {
                   ...colorToEdit,
                   code: { hex: e.target.value }
                 })
-              }
+              }preventDefault
               value={colorToEdit.code.hex}
             />
           </label>
@@ -95,8 +116,18 @@ const ColorList = ({ colors, updateColors }) => {
           </div>
         </form>
       )}
-      <div className="spacer" />
+      <div />
       {/* stretch - build another form here to add a color */}
+      <Formik 
+      
+      initialValues = {formColor}
+      onSubmit ={addColor}
+      render = {props => <Form>
+        <Field name='color' type='text' placeholder='Color' />
+        <Field name='hex' type='text' placeholder='Hex' />
+        <Button type='submit' color='primary' >Add Color</Button>
+      </Form>}
+      />
     </div>
   );
 };
