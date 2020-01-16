@@ -1,13 +1,20 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axiosWithAuth from "../utils/axiosWithAuth";
+import { Formik, Form, Field } from "formik";
+import { Button } from "react-bulma-components";
+import styled from "styled-components";
 
 const initialColor = {
   color: "",
   code: { hex: "" }
 };
 
+const formColor = {
+  color: "",
+   hex: "" 
+};
+
 const ColorList = ({ colors, updateColors }) => {
-  console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
 
@@ -21,11 +28,45 @@ const ColorList = ({ colors, updateColors }) => {
     // Make a put request to save your updated color
     // think about where will you get the id from...
     // where is is saved right now?
+
+    axiosWithAuth()
+      .put(`/colors/${colorToEdit.id}`, colorToEdit)
+      .then(({ data }) => {
+        const colorChanged = colors.find(color => color.id === colorToEdit.id);
+        const index = colors.indexOf(colorChanged);
+        if (~index) {
+          colors[index] = data;
+        }
+        updateColors([...colors]);
+        setEditing(false)
+      })
+      .catch(err => alert(err));
   };
 
   const deleteColor = color => {
     // make a delete request to delete this color
+    axiosWithAuth().delete(`/colors/${color.id}`)
+    .then(({ data }) => {
+      const remainingColors = colors.filter(color => color.id !== data)
+      updateColors(remainingColors)
+      setEditing(false)
+    })
+    .catch(err => alert(err))
   };
+
+  const addColor = (formValues, actions) => {
+    axiosWithAuth().post('/colors', {
+      id: Date.now,
+      color: formValues.color,
+      code: {hex: formValues.hex}
+    })
+    .then(({data}) => {
+      console.log(data);
+      actions.resetForm()
+      updateColors(data)
+    })
+    .catch(err => console.log(err))
+  }
 
   return (
     <div className="colors-wrap">
@@ -66,7 +107,7 @@ const ColorList = ({ colors, updateColors }) => {
                   ...colorToEdit,
                   code: { hex: e.target.value }
                 })
-              }
+              }preventDefault
               value={colorToEdit.code.hex}
             />
           </label>
@@ -76,10 +117,33 @@ const ColorList = ({ colors, updateColors }) => {
           </div>
         </form>
       )}
-      <div className="spacer" />
+      <div />
       {/* stretch - build another form here to add a color */}
+      <Formik 
+      
+      initialValues = {formColor}
+      onSubmit ={addColor}
+      render = {props => <StyledForm>
+        <Field name='color' type='text' placeholder='Color' />
+        <Field name='hex' type='text' placeholder='Hex' />
+        <Button type='submit' color='primary' >Add Color</Button>
+      </StyledForm>}
+      />
     </div>
   );
 };
+
+const StyledForm = styled(Form)`
+  input {
+    width: 80%;
+    margin: .3rem auto;
+  }
+
+  button {
+    width: 8rem;
+    margin: .3rem auto;
+
+  }
+`
 
 export default ColorList;
